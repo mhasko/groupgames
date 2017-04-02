@@ -4,11 +4,20 @@
     <script src="js/groupedGames.js"></script>
 </header>
 <body ng-app="groupedGames">
+<!--
+    ng-controller tells the webpage that everything in this dive is under the control of
+    the given controller.  Variable names we use here (like summoner1Results and summonerName1)
+    are 'bound' here in the html and can be used and modified in the controller. A change in one
+    will be reflected in the other
+-->
 <div ng-controller="groupedGameCtrl" class="containerDiv">
     <div class="input">
+        <!-- ng-model says 'define what ever is typed here as a variable in the controller scope-->
         <input type="text" ng-model="summonerName1" />
         <button ng-click="getSummoner()">Get summoner</button>
     </div>
+    <!-- the {{}} are two way bindings.  summoner1Results is a variable in the controller scope
+         whose value will be displayed in this space -->
     <div class="resultView">{{summoner1Results}}</div>
 </div>
 </body>
