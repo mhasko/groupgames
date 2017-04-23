@@ -6,19 +6,30 @@
 //  makes calls to Riot's API as well as caching/saving data to a local
 //  DB to reduce calls to riot
 var express = require('express');
-//This loads a local json file containing things like API cert keys to
+//This loads a local env file containing things like API cert keys to
 //  the Riot API.  This allows the code to use the API key without having
 //   to check in the key to GitHub, which is a security risk.  You may
 //   have to create this file locally.
-var riotConfig = require('./.riotConfig.json');
+//
+//   dotenv seems to be the nodejs standard for doing this, so the file
+//   is a .env file
+require('dotenv').config();
 //Required for express to serve up stuff
 var bodyParser = require('body-parser');
 //3rd party node.js library that wraps calls to Riot's API in an node object
-//  Can be found at https://github.com/claudiowilson/LeagueJS
-var LolApi = require('leagueapi');
+//  Can be found at https://github.com/ChauTNguyen/kindred-api
+var KindredApi = require('kindred-api');
+//chalk is a defacto string library for Node
+var chalk = require('chalk');
 
-//Init LolApi with our Riot API key
-LolApi.init(riotConfig.riotAPIKey, 'na');
+//Init Kindred with our Riot API key
+var LolApi = new KindredApi.Kindred({
+    key: process.env.riotAPIKey,
+    defaultRegion: KindredApi.REGIONS.NORTH_AMERICA,
+    debug: true,
+    limits: KindredApi.LIMITS.DEV,
+    cacheOptions: KindredApi.CACHE_TYPES[0]
+});
 
 //Init and configure express.  Pretty boilerplate stuff
 var app = express();
@@ -46,7 +57,7 @@ app.use('/api', router);
 
 //every router bounce call will go through here.  We can use this to set up basic
 //  logging or configuration of headers or what ever needs to be done on all api
-//  calls.
+//  calls.  The next() allows the call to continue through to the requested route
 router.use(function(req, res, next) {
     //TODO - using console.log is usually not good, find a logging library?
     console.log('Something is happening.');
@@ -62,34 +73,44 @@ router.route('/ping')
     });
 
 /* GET /api/summoner/:sumname */
-//Pass the entered summoner name and determine the summonerid using the Riot API.
-//  Once we have the id, use the summoner id to get its match history
+//Pass the entered summoner name to the KindredApi, which converts that to
+//  user id and then passes that to the Riot API to get the match history
 router.route('/summoner/:sumname')
     .get(function(req, res) {
-        // TODO - check to see if this user is stored in our local db, if not fetch
-        LolApi.Summoner.getByName(req.params.sumname, function(err, summoner) {
-            if (!err) {
-
-                // TODO - check to see if match history is < x hours old, if so, fetch new history
-                // TODO - and save to local db
-                //
-
-                LolApi.getMatchHistory(summoner[req.params.sumname].id, null, 'na', function(err, history){
-                    if(!err){
-                        //TODO - we need to only save the new match history data in local db
-
-                        //Later on we'll want to do something more exciting with the match history, but for
-                        //  now, just return the json of the history
-                        res.json(history);
-                    }
-                });
+        var opts = {
+            region: KindredApi.REGIONS.NORTH_AMERICA,
+            options: {
+                rankedQueues: ['RANKED_SOLO_5x5', 'RANKED_FLEX_SR']
             }
-        });
+        };
+
+        LolApi.MatchList.get({name:req.params.sumname, options:opts})
+            .then(data => res.json(data))
+            .catch(err => res.json({error:err}));
+
+        // TODO - check to see if this user is stored in our local db, if not fetch
+        //LolApi.Summoner.get({name: req.params.sumname}, function(err, summoner) {
+        //    if (!err) {
+        //
+        //        // TODO - check to see if match history is < x hours old, if so, fetch new history
+        //        // TODO - and save to local db
+        //        //
+        //
+        //        LolApi.MatchList.get({id: summoner[req.params.sumname].id}, function(err, history){
+        //            if(!err){
+        //                //TODO - we need to only save the new match history data in local db
+        //
+        //                //Later on we'll want to do something more exciting with the match history, but for
+        //                //  now, just return the json of the history
+        //                res.json(history);
+        //            }
+        //        });
+        //    }
+        //});
     });
 
 // Generic error handler used by all endpoints.
 function handleError(res, reason, message, code) {
-    //TODO - using console.log is usually not good, find a logging library?
     console.log("ERROR: " + reason);
     res.status(code || 500).json({"error": message});
 }
