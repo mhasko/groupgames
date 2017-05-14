@@ -28,17 +28,54 @@
     // $inject service on a function then having the function definiation with the injected
     // services as parrams into the controller function helps spell out what's going on and
     // makes the code cleaner without having additional private anon functions everywhere.
-    GroupedGameCtrl.$inject = ['$scope', '$log', '$http'];
-    function GroupedGameCtrl($scope, $log, $http){
-        //summoner1Results is now a variable on the controller scope.  This allows the template
-        //  to access summoner1Results
-        $scope.summoner1Results = "summoner data will appear here";
+    GroupedGameCtrl.$inject = ['$scope', '$log', '$http', '$q'];
+    function GroupedGameCtrl($scope, $log, $http, $q){
 
-        $scope.getSummoner = function(){
-            //Likewise, summonerName1 was defined in scope in the template, and now we can
-            //  accesss what ever the value is here.  We pull the string value from the input
-            //  field, and add it to this url string...
-            var url = '/api/summoner/'+ $scope.summonerName1;
+        //This will be be the raw backing object for the app
+        $scope.summonerRawData = {};
+
+        //Sets the getData function to the scope, so the DOM can call it
+        $scope.getData = getData;
+
+        function getData() {
+            //Reset the backing data object on every press of the button
+            $scope.summonerRawData = {};
+            $scope.matchedIds = [];
+
+            //Every http call returns a promise, which we're stashing in here.  We
+            //  can use the $q.all funciton to execute code once all the promises in
+            //  a collection are resolved.  We want to run actions on all the data, but
+            //  only once it has been loaded...
+            var allLoadingPromises = [];
+
+            //Parse the inputString, each summoner name should be comma delimited,
+            //  then pass each name into the getSummonerDataFor function
+            angular.forEach($scope.summonerNames.split(','), function(name){
+                allLoadingPromises.push(getSummonerDataFor(name).then(function successCallback(response) {
+                    //We have fetched data, stash it in the backing raw data object with the
+                    //  summoner's name as the key
+                    $scope.summonerRawData[name]=response.data;
+                }, function errorCallback(response) {
+                    $scope.summonerRawData[name]= 'err';
+                }));
+            });
+
+            //Once all the data loads, we need to then find the intersections of all the
+            //  matchIds.
+            $q.all(allLoadingPromises).then(function(){
+                var findIntersectionsIn = [];
+                angular.forEach($scope.summonerRawData, function(data, sumname){
+                    data.matchArray = createArrayOfParam(data.matches,'matchId');
+                    findIntersectionsIn.push(data.matchArray);
+                });
+                //matchedIds is on the scope so the DOM can access it.
+                $scope.matchedIds = intersectionOfArrays(findIntersectionsIn);
+            })
+        }
+
+        function getSummonerDataFor(summonerName){
+            //summonerName is passed in here, so we create the url with the summoner name...
+            var url = '/api/summoner/'+ summonerName;
             //...Then we use the url string to make the call to our API.  $http is an angular
             //  service that makes http calls, given a few parameters like the type of request
             //  in this case a GET, and url, in this case the url we created.  When we get a
@@ -49,15 +86,51 @@
             //  Either way, we set the summoner1Results variable to either the response, or the
             //  string 'err'.  As this variable is bound to the template, we easily display the
             //  result to the user.
-            $http({
+            return $http({
                 method: 'GET',
                 url: url
-            }).then(function successCallback(response) {
-                $scope.summoner1Results = response.data;
-            }, function errorCallback(response) {
-                $scope.summoner1Results = 'err';
             });
         }
+
+        //Utility function to create an array of one value from an array of objects.
+        function createArrayOfParam(dataObject, param){
+            var array = [];
+            angular.forEach(dataObject, function(obj){
+                array.push(obj[param]);
+            });
+            return array;
+        }
+
+        //The goal of this app is to find what matchIds everyone listed shares.  We'll
+        //  have many arrays of matchId, but a variable amount of arrays that we need
+        //  to find all the intersections of.  This first attempt is a brute force way
+        //  of finding them.
+        function intersectionOfArrays(arrayOfArrays){
+            //If we only have one or none, just return it and move on
+            if(arrayOfArrays.length <= 1){return arrayOfArrays;}
+
+            //We can assume we have at least 2 arrays now.  So what we're
+            //  going to do is pop the first array, and use that as our
+            //  known matching set.  We'll compare each value against the
+            //  next array, keeping only values that are in both in our
+            //  known matching set.  The we'll keep going through all the
+            //  arrays in this manner.
+            var matchingSet = arrayOfArrays.pop();
+
+            angular.forEach(arrayOfArrays, function(sumMatches){
+                var newMatchingSet = [];
+                angular.forEach(matchingSet, function(matchedId){
+                    if(sumMatches.indexOf(matchedId) > -1){
+                        newMatchingSet.push(matchedId);
+                    }
+                });
+
+                matchingSet = newMatchingSet;
+            });
+
+            return matchingSet;
+        }
+
     }
 
 })();

@@ -8,11 +8,11 @@
 var express = require('express');
 //This loads a local env file containing things like API cert keys to
 //  the Riot API.  This allows the code to use the API key without having
-//   to check in the key to GitHub, which is a security risk.  You may
-//   have to create this file locally.
+//  to check in the key to GitHub, which is a security risk.  You may
+//  have to create this file locally.
 //
-//   dotenv seems to be the nodejs standard for doing this, so the file
-//   is a .env file
+//  dotenv seems to be the nodejs standard for doing this, so the file
+//  is a .env file
 require('dotenv').config();
 //Required for express to serve up stuff
 var bodyParser = require('body-parser');
@@ -59,8 +59,6 @@ app.use('/api', router);
 //  logging or configuration of headers or what ever needs to be done on all api
 //  calls.  The next() allows the call to continue through to the requested route
 router.use(function(req, res, next) {
-    //TODO - using console.log is usually not good, find a logging library?
-    console.log('Something is happening.');
     next();
 });
 

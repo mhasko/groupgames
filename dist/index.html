@@ -13,12 +13,16 @@
 <div ng-controller="groupedGameCtrl" class="containerDiv">
     <div class="input">
         <!-- ng-model says 'define what ever is typed here as a variable in the controller scope-->
-        <input type="text" ng-model="summonerName1" />
-        <button ng-click="getSummoner()">Get summoner</button>
+        <input type="text" ng-model="summonerNames" />
+        <button ng-click="getData()">Get grouped Games</button>
     </div>
     <!-- the {{}} are two way bindings.  summoner1Results is a variable in the controller scope
          whose value will be displayed in this space -->
-    <div class="resultView">{{summoner1Results}}</div>
+    <div class="resultView" ng-repeat="(name,data) in summonerRawData">
+        <span>{{name}}</span><span>{{data.matchArray}}</span>
+    </div>
+
+    <div><span>Match ids with everyone listed are:</span><span>{{matchedIds}}</span></div>
 </div>
 </body>
 </html>
