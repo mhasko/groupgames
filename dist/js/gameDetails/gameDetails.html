@@ -1,0 +1,8 @@
+<div class="gameDetails">
+    <div>Game id-{{data.gameId}}</div>
+    <div>
+        <div>Teams</div>
+        <team-details side="data.teams[0].teamId" team="data.teams[0]" participants="data.participants" participantids="data.participantIdentities"></team-details>
+        <team-details side="data.teams[1].teamId" team="data.teams[1]" participants="data.participants" participantids="data.participantIdentities"></team-details>
+    </div>
+</div>

@@ -26,7 +26,7 @@ var chalk = require('chalk');
 var LolApi = new KindredApi.Kindred({
     key: process.env.riotAPIKey,
     defaultRegion: KindredApi.REGIONS.NORTH_AMERICA,
-    debug: true,
+    debug: process.env.riotAPIDebug,
     limits: KindredApi.LIMITS.DEV,
     cacheOptions: KindredApi.CACHE_TYPES[0]
 });
@@ -82,7 +82,7 @@ router.route('/summoner/:sumname')
             }
         };
 
-        LolApi.MatchList.get({name:req.params.sumname, options:opts})
+        LolApi.Matchlist.get({name:req.params.sumname, options:opts})
             .then(data => res.json(data))
             .catch(err => res.json({error:err}));
 
@@ -106,6 +106,25 @@ router.route('/summoner/:sumname')
         //    }
         //});
     });
+
+/* GET /api/match/:matchid */
+//Get the game stats for the entered matchid.  Redis will cache this short term
+//  while longer term we'll want to do ... something for this?
+router.route('/match/:matchid')
+    .get(function(req, res){
+        LolApi.Match.by.id(parseInt(req.params.matchid))
+        .then(data => res.json(data))
+        .catch(error => res.json({error:err}));
+    });
+
+/* GET /api/static/:champid */
+//Get the static data for the given champion
+router.route('/static/champ/:champid')
+    .get(function(req, res){
+        LolApi.Static.Champion.by.id(parseInt(req.params.champid), {champData:'all'})
+        .then(data => res.json(data))
+        .catch(error => res.json({error:err}));
+    })
 
 // Generic error handler used by all endpoints.
 function handleError(res, reason, message, code) {

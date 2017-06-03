@@ -2,10 +2,15 @@
 <header>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.14/angular.js"></script>
     <script src="js/groupedGames.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/gameDetails/gameDetails.js"></script>
+    <script src="components/jsplumb/dist/js/jsplumb.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="css/style.css">
 </header>
 <body ng-app="groupedGames">
 <!--
-    ng-controller tells the webpage that everything in this dive is under the control of
+    ng-controller tells the webpage that everything in this div is under the control of
     the given controller.  Variable names we use here (like summoner1Results and summonerName1)
     are 'bound' here in the html and can be used and modified in the controller. A change in one
     will be reflected in the other
@@ -18,11 +23,25 @@
     </div>
     <!-- the {{}} are two way bindings.  summoner1Results is a variable in the controller scope
          whose value will be displayed in this space -->
-    <div class="resultView" ng-repeat="(name,data) in summonerRawData">
-        <span>{{name}}</span><span>{{data.matchArray}}</span>
+    <div class="gameScrollView">
+        <div class="resultView">
+            <span>Match data with everyone listed are:</span>
+            <div ng-repeat="data in matchRawData">
+                <!--<div>id&#45;&#45;{{id}}&#45;&#45;</div>-->
+                <game-details data="data"></game-details>
+                <!--<div>data&#45;&#45;{{data}}</div>-->
+            </div>
+        </div>
+        <!--<div class="resultView" ng-repeat="(name,data) in summonerRawData">-->
+            <!--<div class="summonerName">{{name}}</div>-->
+            <!--<div ng-repeat="matchId in data.matchArray">-->
+                <!--{{matchId}}-->
+            <!--</div>-->
+        <!--</div>-->
     </div>
 
-    <div><span>Match ids with everyone listed are:</span><span>{{matchedIds}}</span></div>
+
+    <!--<div><span>Match ids with everyone listed are:</span><span>{{matchedIds}}</span></div>-->
 </div>
 </body>
 </html>

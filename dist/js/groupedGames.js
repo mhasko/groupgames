@@ -14,8 +14,9 @@
     //  a few more lines of code, but it is cleaner and easier to debug (This matches with
     //  John Papa's angular style guide https://github.com/johnpapa/angular-styleguide/tree/master/a1
     angular
-        .module('groupedGames',[])
-        .controller('groupedGameCtrl', GroupedGameCtrl);
+        .module('groupedGames',['gameObjects','services'])
+        .controller('groupedGameCtrl', GroupedGameCtrl)
+        //.directive('gameDetails', GameDetails);
 
 
     //Angular's secret sauce is injecting things when they are needed.  Again, in a lot of
@@ -28,18 +29,22 @@
     // $inject service on a function then having the function definiation with the injected
     // services as parrams into the controller function helps spell out what's going on and
     // makes the code cleaner without having additional private anon functions everywhere.
-    GroupedGameCtrl.$inject = ['$scope', '$log', '$http', '$q'];
-    function GroupedGameCtrl($scope, $log, $http, $q){
+    GroupedGameCtrl.$inject = ['$scope', '$log', '$http', '$q', 'services'];
+    function GroupedGameCtrl($scope, $log, $http, $q, services){
 
         //This will be be the raw backing object for the app
         $scope.summonerRawData = {};
+
+        $scope.matchRawData = {};
 
         //Sets the getData function to the scope, so the DOM can call it
         $scope.getData = getData;
 
         function getData() {
             //Reset the backing data object on every press of the button
+            //TODO move all this init into an init function
             $scope.summonerRawData = {};
+            $scope.matchRawData = {};
             $scope.matchedIds = [];
 
             //Every http call returns a promise, which we're stashing in here.  We
@@ -51,7 +56,7 @@
             //Parse the inputString, each summoner name should be comma delimited,
             //  then pass each name into the getSummonerDataFor function
             angular.forEach($scope.summonerNames.split(','), function(name){
-                allLoadingPromises.push(getSummonerDataFor(name).then(function successCallback(response) {
+                allLoadingPromises.push(services.getSummonerDataFor(name).then(function successCallback(response) {
                     //We have fetched data, stash it in the backing raw data object with the
                     //  summoner's name as the key
                     $scope.summonerRawData[name]=response.data;
@@ -65,31 +70,25 @@
             $q.all(allLoadingPromises).then(function(){
                 var findIntersectionsIn = [];
                 angular.forEach($scope.summonerRawData, function(data, sumname){
-                    data.matchArray = createArrayOfParam(data.matches,'matchId');
+                    data.matchArray = createArrayOfParam(data.matches,'gameId');
                     findIntersectionsIn.push(data.matchArray);
                 });
                 //matchedIds is on the scope so the DOM can access it.
                 $scope.matchedIds = intersectionOfArrays(findIntersectionsIn);
+                getGroupedMatchData($scope.matchedIds);
             })
         }
 
-        function getSummonerDataFor(summonerName){
-            //summonerName is passed in here, so we create the url with the summoner name...
-            var url = '/api/summoner/'+ summonerName;
-            //...Then we use the url string to make the call to our API.  $http is an angular
-            //  service that makes http calls, given a few parameters like the type of request
-            //  in this case a GET, and url, in this case the url we created.  When we get a
-            //  successful response back, we'll execute the code in the successCallback function,
-            //  otherise if we get an error response we'll execute teh code in the errorCallback
-            //  function.
-            //
-            //  Either way, we set the summoner1Results variable to either the response, or the
-            //  string 'err'.  As this variable is bound to the template, we easily display the
-            //  result to the user.
-            return $http({
-                method: 'GET',
-                url: url
-            });
+        function getGroupedMatchData(arrayOfIds){
+            //var id = arrayOfIds[0];
+            angular.forEach(arrayOfIds, function(id){
+
+                services.getMatchDataFor(id).then(function successCall(response){
+                    $scope.matchRawData[id] = response.data
+                },function errorCallback(response) {
+                    $scope.matchRawData[id] = 'err';
+                });
+            })
         }
 
         //Utility function to create an array of one value from an array of objects.
@@ -132,5 +131,7 @@
         }
 
     }
+
+
 
 })();

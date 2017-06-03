@@ -1,8 +1,42 @@
 body {
-  padding: 50px;
+  padding: 5px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
+}
+
+.gameScrollView{
+  /*height: 75%;*/
+  /*min-height: 400px;*/
+  /*overflow-y: scroll;*/
+}
+
+.resultView {
+  display:inline-block;
+  vertical-align: top;
+  margin: 5px 50px;
+}
+
+.resultView .summonerName {
+  font-weight: bold;
+  margin: 5px;
+}
+
+.Win {background-color: rgba(85, 136, 34, 0.24);}
+.Fail {background-color: rgba(220, 0, 0, 0.24);}
+
+.teamDetails{
+  display:inline-block;
+}
+
+.champIcon {
+  display:inline-block;
+}
+.champStats {
+  display:inline-block;
+}
+.champIcon img{
+  width:40px;
 }
