@@ -2,3 +2,4 @@
 node_modules/
 .riotConfig.json
 .env
+dist/
