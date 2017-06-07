@@ -1,17 +1,15 @@
-<!--<div>-->
-    <div class="teamDetails" ng-class="team.win">
-        <span>{{side}}</span>
+    <div class="teamDetails" ng-class="{win:searchedTeam && team.win === 'Win',loss:searchedTeam && team.win === 'Fail'}">
+    <span>{{sideString}}</span>
 
-        <div>
-            <div class="summonerDetails" ng-repeat="sum in summoners">
-                <div class="champIcon">
-                    <img ng-if="sum.champLink" src="{{sum.champLink}}">
-                </div>
-                <div class="champStats">
-                    <div>{{sum.summonerName}}</div>
-                    <div>KDA:{{sum.stats.kills}}/{{sum.stats.deaths}}/{{sum.stats.assists}}</div>
-                </div>
+    <div>
+        <div class="summonerDetails" ng-repeat="sum in summoners">
+            <div class="champIcon">
+                <img ng-if="sum.champLink" src="{{sum.champLink}}">
+            </div>
+            <div class="champStats">
+                <div>{{sum.summonerName}}</div>
+                <div>KDA:{{sum.stats.kills}}/{{sum.stats.deaths}}/{{sum.stats.assists}}</div>
             </div>
         </div>
     </div>
-<!--</div>-->
+</div>

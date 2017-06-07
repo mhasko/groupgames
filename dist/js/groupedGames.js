@@ -16,8 +16,6 @@
     angular
         .module('groupedGames',['gameObjects','services'])
         .controller('groupedGameCtrl', GroupedGameCtrl)
-        //.directive('gameDetails', GameDetails);
-
 
     //Angular's secret sauce is injecting things when they are needed.  Again, in a lot of
     //  online code you'll see injection different ex:
@@ -31,10 +29,14 @@
     // makes the code cleaner without having additional private anon functions everywhere.
     GroupedGameCtrl.$inject = ['$scope', '$log', '$http', '$q', 'services'];
     function GroupedGameCtrl($scope, $log, $http, $q, services){
+        $scope.matchType = {
+            rankedFives: true,
+            normalFives: false,
+            customs: false
+        };
 
         //This will be be the raw backing object for the app
         $scope.summonerRawData = {};
-
         $scope.matchRawData = {};
 
         //Sets the getData function to the scope, so the DOM can call it
@@ -55,7 +57,7 @@
 
             //Parse the inputString, each summoner name should be comma delimited,
             //  then pass each name into the getSummonerDataFor function
-            angular.forEach($scope.summonerNames.split(','), function(name){
+            angular.forEach($scope.summonerNames, function(name){
                 allLoadingPromises.push(services.getSummonerDataFor(name).then(function successCallback(response) {
                     //We have fetched data, stash it in the backing raw data object with the
                     //  summoner's name as the key

@@ -7,10 +7,15 @@ a {
   color: #00B7FF;
 }
 
+.matchData{
+  margin: 10px 0;
+  border-style: solid;
+}
+
 .gameScrollView{
-  /*height: 75%;*/
-  /*min-height: 400px;*/
-  /*overflow-y: scroll;*/
+  height: 95%;
+  min-height: 400px;
+  overflow-y: scroll;
 }
 
 .resultView {
@@ -24,8 +29,12 @@ a {
   margin: 5px;
 }
 
-.Win {background-color: rgba(85, 136, 34, 0.24);}
-.Fail {background-color: rgba(220, 0, 0, 0.24);}
+.win {background-color: rgba(85, 136, 34, 0.24);}
+.loss {background-color: rgba(220, 0, 0, 0.24);}
+
+.inputColumn{
+  display:inline-block;
+}
 
 .teamDetails{
   display:inline-block;

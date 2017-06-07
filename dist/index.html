@@ -4,7 +4,8 @@
     <script src="js/groupedGames.js"></script>
     <script src="js/services.js"></script>
     <script src="js/gameDetails/gameDetails.js"></script>
-    <script src="components/jsplumb/dist/js/jsplumb.js"></script>
+    <script src="js/gameDetails/teamDetails.js"></script>
+    <!--<script src="components/jsplumb/dist/js/jsplumb.js"></script>-->
 
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </header>
@@ -17,31 +18,48 @@
 -->
 <div ng-controller="groupedGameCtrl" class="containerDiv">
     <div class="input">
-        <!-- ng-model says 'define what ever is typed here as a variable in the controller scope-->
-        <input type="text" ng-model="summonerNames" />
-        <button ng-click="getData()">Get grouped Games</button>
+        <!--
+            ng-model says 'define what ever is typed here as a variable in the controller scope.
+            each of the summonerNames stay inside the summonerNames variable, same with the
+            matchType variable.  This makes it easier to pass the values to the different objects
+            that needs to consume them
+        -->
+        <div class="inputColumn">
+            <input type="text" ng-model="summonerNames.one" /><br/>
+            <input type="text" ng-model="summonerNames.two" /><br/>
+            <input type="text" ng-model="summonerNames.three" /><br/>
+            <input type="text" ng-model="summonerNames.four" /><br/>
+            <input type="text" ng-model="summonerNames.five" /><br/>
+        </div>
+
+        <div class="inputColumn">
+            <input type="checkbox" ng-model="matchType.rankedFives"/><label>Ranked 5s</label><br/>
+            <input type="checkbox" ng-model="matchType.normalFives"/><label>Normals</label><br/>
+            <input type="checkbox" ng-model="matchType.customs"/><label>Customs</label><br/>
+        </div>
+        <div>
+            <button ng-disabled="!matchType.rankedFives && !matchType.normalFives && !matchType.customs" ng-click="getData()">Get grouped Games</button>
+        </div>
     </div>
-    <!-- the {{}} are two way bindings.  summoner1Results is a variable in the controller scope
-         whose value will be displayed in this space -->
+
     <div class="gameScrollView">
         <div class="resultView">
             <span>Match data with everyone listed are:</span>
-            <div ng-repeat="data in matchRawData">
-                <!--<div>id&#45;&#45;{{id}}&#45;&#45;</div>-->
-                <game-details data="data"></game-details>
-                <!--<div>data&#45;&#45;{{data}}</div>-->
+            <!--
+                ng-repeat is a for loop inside of the HTMl markup.  data in matchRawData will
+                loop through matchRawData scope array and map each value inside to data
+            -->
+            <div class="matchData" ng-repeat="data in matchRawData">
+                <!--
+                    game-details is a custom build directive.  Directives are 'homemade' html tags
+                    that allow us to encapsulate logic into one place, then make our HTML markup
+                    more readable and eacy to use.  See the gameDetails.html and gameDetails.js for
+                    the defination of this directive
+                -->
+                <game-details data="data" searched-names="summonerNames"></game-details>
             </div>
         </div>
-        <!--<div class="resultView" ng-repeat="(name,data) in summonerRawData">-->
-            <!--<div class="summonerName">{{name}}</div>-->
-            <!--<div ng-repeat="matchId in data.matchArray">-->
-                <!--{{matchId}}-->
-            <!--</div>-->
-        <!--</div>-->
     </div>
-
-
-    <!--<div><span>Match ids with everyone listed are:</span><span>{{matchedIds}}</span></div>-->
 </div>
 </body>
 </html>
