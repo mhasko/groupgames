@@ -1,6 +1,7 @@
 .idea/
 node_modules/
 dist/teams.json
+dist/img/champion
 .riotConfig.json
 .env
 .bowerrc
