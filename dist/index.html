@@ -3,6 +3,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.14/angular.js"></script>
     <script src="js/groupedGames.js"></script>
     <script src="js/services.js"></script>
+    <script src="js/backingDataService.js"></script>
     <script src="js/gameDetails/gameDetails.js"></script>
     <script src="js/gameDetails/teamDetails.js"></script>
     <!--<script src="components/jsplumb/dist/js/jsplumb.js"></script>-->
@@ -33,12 +34,14 @@
         </div>
 
         <div class="inputColumn">
-            <input type="checkbox" ng-model="matchType.rankedFives"/><label>Ranked 5s</label><br/>
-            <input type="checkbox" ng-model="matchType.normalFives"/><label>Normals</label><br/>
-            <input type="checkbox" ng-model="matchType.customs"/><label>Customs</label><br/>
+            <input type="checkbox" ng-model="matchType.RANKED_FLEX_SR"/><label>Ranked 5s</label><br/>
+            <input type="checkbox" ng-model="matchType.TEAM_BUILDER_RANKED_SOLO"/><label>Ranked Solo</label><br/>
+        </div>
+        <div class="inputColumn">
+
         </div>
         <div>
-            <button ng-disabled="!matchType.rankedFives && !matchType.normalFives && !matchType.customs" ng-click="getData()">Get grouped Games</button>
+            <button ng-disabled="!matchType.RANKED_FLEX_SR && !matchType.TEAM_BUILDER_RANKED_SOLO" ng-click="getData()">Get grouped Games</button>
         </div>
     </div>
 

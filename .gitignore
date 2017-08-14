@@ -1,5 +1,7 @@
 .idea/
 node_modules/
+dist/teams.json
 .riotConfig.json
 .env
-dist/
+.bowerrc
+bower.json

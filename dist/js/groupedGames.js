@@ -27,13 +27,9 @@
     // $inject service on a function then having the function definiation with the injected
     // services as parrams into the controller function helps spell out what's going on and
     // makes the code cleaner without having additional private anon functions everywhere.
-    GroupedGameCtrl.$inject = ['$scope', '$log', '$http', '$q', 'services'];
-    function GroupedGameCtrl($scope, $log, $http, $q, services){
-        $scope.matchType = {
-            rankedFives: true,
-            normalFives: false,
-            customs: false
-        };
+    GroupedGameCtrl.$inject = ['$scope', '$log', '$http', '$q', 'services', 'backingData'];
+    function GroupedGameCtrl($scope, $log, $http, $q, services, backingData){
+        $scope.matchType = backingData.matchType;
 
         //This will be be the raw backing object for the app
         $scope.summonerRawData = {};
@@ -131,9 +127,5 @@
 
             return matchingSet;
         }
-
     }
-
-
-
 })();

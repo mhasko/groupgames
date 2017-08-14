@@ -9,8 +9,8 @@
         .module('services',[])
         .factory('services', Services)
 
-    Services.$inject=['$http'];
-    function Services($http){
+    Services.$inject=['$http', 'backingData'];
+    function Services($http, backingData){
         var theService = {
             getChampDataForId:getChampDataForId,
             getMatchDataFor:getMatchDataFor,
@@ -31,9 +31,16 @@
             //  Either way, we set the summoner1Results variable to either the response, or the
             //  string 'err'.  As this variable is bound to the template, we easily display the
             //  result to the user.
+            var matchTypeParams = [];
+            angular.forEach(backingData.matchType, function(useParam, queueType){
+                if(useParam){
+                    matchTypeParams.push(queueType);
+                }
+            });
             return $http({
                 method: 'GET',
-                url: url
+                url: url,
+                params: {"matchType":matchTypeParams}
             });
         }
 
@@ -48,7 +55,6 @@
 
         function getChampDataForId(champId){
             var url = '/api/static/champ/' + champId;
-
             return $http({
                 method: 'GET',
                 url: url

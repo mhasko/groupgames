@@ -53,7 +53,6 @@
             //  to ignore for our logic.  I hope.
             var foundId;
 
-
             angular.forEach($scope.searchedNames, function(name){
                 if(!foundId){
                     var result = $filter('filter')($scope.data.participantIdentities, {$:name});

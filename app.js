@@ -18,17 +18,27 @@ require('dotenv').config();
 var bodyParser = require('body-parser');
 //3rd party node.js library that wraps calls to Riot's API in an node object
 //  Can be found at https://github.com/ChauTNguyen/kindred-api
-var KindredApi = require('kindred-api');
+//var KindredApi = require('kindred-api');
 //chalk is a defacto string library for Node
 var chalk = require('chalk');
+const KindredApi = require('kindred-api')
+
+const RIOT_API_KEY = 'whatever'
+const REGIONS = KindredApi.REGIONS
+const LIMITS = KindredApi.LIMITS
+const InMemoryCache = KindredApi.InMemoryCache
+const RedisCache = KindredApi.RedisCache
+
 
 //Init Kindred with our Riot API key
-var LolApi = new KindredApi.Kindred({
+var k = new KindredApi.Kindred({
     key: process.env.riotAPIKey,
-    defaultRegion: KindredApi.REGIONS.NORTH_AMERICA,
+    defaultRegion: REGIONS.NORTH_AMERICA,
     debug: process.env.riotAPIDebug,
-    limits: KindredApi.LIMITS.DEV,
-    cacheOptions: KindredApi.CACHE_TYPES[0]
+    showKey: process.env.riotAPIDebug,
+    showHeaders: process.env.riotAPIDebug,
+    limits: LIMITS.DEV,
+    cache: new InMemoryCache()
 });
 
 //Init and configure express.  Pretty boilerplate stuff
@@ -76,35 +86,13 @@ router.route('/ping')
 router.route('/summoner/:sumname')
     .get(function(req, res) {
         var opts = {
-            region: KindredApi.REGIONS.NORTH_AMERICA,
-            options: {
-                rankedQueues: ['RANKED_SOLO_5x5', 'RANKED_FLEX_SR']
-            }
+            queue: [KindredApi.QUEUE_TYPES.RANKED_SOLO_5x5, KindredApi.QUEUE_TYPES.RANKED_FLEX_SR]
         };
 
-        LolApi.Matchlist.get({name:req.params.sumname, options:opts})
+        k.Matchlist.by.name(req.params.sumname, opts)
             .then(data => res.json(data))
             .catch(err => res.json({error:err}));
 
-        // TODO - check to see if this user is stored in our local db, if not fetch
-        //LolApi.Summoner.get({name: req.params.sumname}, function(err, summoner) {
-        //    if (!err) {
-        //
-        //        // TODO - check to see if match history is < x hours old, if so, fetch new history
-        //        // TODO - and save to local db
-        //        //
-        //
-        //        LolApi.MatchList.get({id: summoner[req.params.sumname].id}, function(err, history){
-        //            if(!err){
-        //                //TODO - we need to only save the new match history data in local db
-        //
-        //                //Later on we'll want to do something more exciting with the match history, but for
-        //                //  now, just return the json of the history
-        //                res.json(history);
-        //            }
-        //        });
-        //    }
-        //});
     });
 
 /* GET /api/match/:matchid */
@@ -112,7 +100,7 @@ router.route('/summoner/:sumname')
 //  while longer term we'll want to do ... something for this?
 router.route('/match/:matchid')
     .get(function(req, res){
-        LolApi.Match.by.id(parseInt(req.params.matchid))
+        k.Match.by.id(parseInt(req.params.matchid))
         .then(data => res.json(data))
         .catch(error => res.json({error:err}));
     });
@@ -121,7 +109,7 @@ router.route('/match/:matchid')
 //Get the static data for the given champion
 router.route('/static/champ/:champid')
     .get(function(req, res){
-        LolApi.Static.Champion.by.id(parseInt(req.params.champid), {champData:'all'})
+        k.Static.Champion.by.id(parseInt(req.params.champid), {tags:'all'})
         .then(data => res.json(data))
         .catch(error => res.json({error:err}));
     })
